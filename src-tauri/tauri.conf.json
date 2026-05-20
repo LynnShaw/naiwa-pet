@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Naiwa Pet",
+  "productName": "奶蛙",
   "version": "0.1.0",
   "identifier": "com.naiwa.pet",
   "build": {
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Naiwa Pet",
+        "title": "奶蛙",
         "label": "main",
         "width": 240,
         "height": 320,

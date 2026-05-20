@@ -1,4 +1,6 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { CheckMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/menu";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow, LogicalPosition, LogicalSize } from "@tauri-apps/api/window";
 import "./styles.css";
 
 type PetManifest = {
@@ -14,6 +16,17 @@ type PetManifest = {
 };
 
 const DEFAULT_PET_ID = "naiwa";
+const APP_NAME = "奶蛙";
+const PET_SIZE_OPTIONS = [
+  { id: "large", label: "大号", width: 240, height: 320 },
+  { id: "medium", label: "中号", width: 180, height: 240 },
+  { id: "small", label: "小号", width: 120, height: 160 },
+  { id: "tiny", label: "极小", width: 90, height: 120 },
+  { id: "mini", label: "迷你", width: 60, height: 80 },
+] as const;
+
+type PetSizeId = (typeof PET_SIZE_OPTIONS)[number]["id"];
+
 const appWindow = getCurrentWindow();
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -31,6 +44,116 @@ hint.className = "loading";
 hint.textContent = "Loading...";
 
 app.append(hint, pet);
+
+const isPetSizeId = (value: string | null): value is PetSizeId =>
+  PET_SIZE_OPTIONS.some((size) => size.id === value);
+
+const getPetSize = (sizeId: PetSizeId) => PET_SIZE_OPTIONS.find((size) => size.id === sizeId) ?? PET_SIZE_OPTIONS[0];
+
+const getInitialPetSizeId = (): PetSizeId => {
+  const size = new URLSearchParams(window.location.search).get("size");
+  return isPetSizeId(size) ? size : "large";
+};
+
+let currentPetSizeId: PetSizeId = getInitialPetSizeId();
+let contextMenuPromise: Promise<Menu> | null = null;
+let lastContextMenuPosition = { x: 64, y: 64 };
+const petSizeItems = new Map<PetSizeId, CheckMenuItem>();
+
+const syncPetSizeChecks = async () => {
+  await Promise.all(
+    PET_SIZE_OPTIONS.map((size) => petSizeItems.get(size.id)?.setChecked(size.id === currentPetSizeId)),
+  );
+};
+
+const setPetSize = async (sizeId: PetSizeId) => {
+  const size = getPetSize(sizeId);
+
+  currentPetSizeId = sizeId;
+  await appWindow.setSize(new LogicalSize(size.width, size.height));
+  await syncPetSizeChecks();
+};
+
+const createAnotherPet = () => {
+  const size = getPetSize(currentPetSizeId);
+  const label = `pet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  const window = new WebviewWindow(label, {
+    url: `/?size=${currentPetSizeId}`,
+    title: APP_NAME,
+    width: size.width,
+    height: size.height,
+    x: lastContextMenuPosition.x + 24,
+    y: lastContextMenuPosition.y + 24,
+    resizable: false,
+    decorations: false,
+    transparent: true,
+    backgroundColor: "#00000000",
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    shadow: false,
+  });
+
+  window.once("tauri://error", (event) => {
+    console.error("Failed to create pet window", event.payload);
+  });
+};
+
+const createContextMenu = async () => {
+  const addPetItem = await MenuItem.new({
+    id: "add-pet",
+    text: "再来一只",
+    action: createAnotherPet,
+  });
+
+  const sizeItems = await Promise.all(
+    PET_SIZE_OPTIONS.map(async (size) => {
+      const item = await CheckMenuItem.new({
+        id: `pet-size-${size.id}`,
+        text: size.label,
+        checked: size.id === currentPetSizeId,
+        action: () => {
+          void setPetSize(size.id);
+        },
+      });
+
+      petSizeItems.set(size.id, item);
+      return item;
+    }),
+  );
+
+  // 1. 尺寸设定只包含尺寸相关的选项
+  const sizeMenu = await Submenu.new({
+    id: "pet-size-menu",
+    text: "尺寸设定",
+    items: sizeItems, 
+  });
+
+  // 2. 在根菜单中组合“再来一只”、“分隔符”和“尺寸设定”子菜单
+  return Menu.new({ 
+    items: [
+      addPetItem, 
+      await PredefinedMenuItem.new({ item: "Separator" }), 
+      sizeMenu
+    ] 
+  });
+};
+
+const getContextMenu = () => {
+  contextMenuPromise ??= createContextMenu();
+  return contextMenuPromise;
+};
+
+const enableContextMenu = () => {
+  app.addEventListener("contextmenu", async (event) => {
+    event.preventDefault();
+    lastContextMenuPosition = { x: event.screenX, y: event.screenY };
+
+    const menu = await getContextMenu();
+    await syncPetSizeChecks();
+    await menu.popup(new LogicalPosition(event.clientX, event.clientY), appWindow);
+  });
+};
 
 const loadManifest = async (petId: string): Promise<PetManifest> => {
   const response = await fetch(`/pets/${petId}/manifest.json`);
@@ -144,6 +267,7 @@ const boot = async () => {
     pet.classList.add("is-ready");
     pet.addEventListener("click", play);
     enableWindowDrag();
+    enableContextMenu();
     void preloadImages(manifest);
   } catch (error) {
     hint.textContent = error instanceof Error ? error.message : "Failed to load pet";

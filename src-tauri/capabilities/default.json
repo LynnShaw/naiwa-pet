@@ -2,6 +2,11 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Default permissions for the desktop pet window.",
-  "windows": ["main"],
-  "permissions": ["core:default", "core:window:allow-start-dragging"]
+  "windows": ["*"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-size",
+    "core:webview:allow-create-webview-window"
+  ]
 }

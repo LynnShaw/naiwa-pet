@@ -1,1 +1,1 @@
-{"default":{"identifier":"default","description":"Default permissions for the desktop pet window.","local":true,"windows":["main"],"permissions":["core:default","core:window:allow-start-dragging"]}}
+{"default":{"identifier":"default","description":"Default permissions for the desktop pet window.","local":true,"windows":["*"],"permissions":["core:default","core:window:allow-start-dragging","core:window:allow-set-size","core:webview:allow-create-webview-window"]}}
