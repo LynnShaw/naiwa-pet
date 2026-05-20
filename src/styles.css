@@ -1,0 +1,50 @@
+:root {
+  --pet-aspect: 720 / 960;
+  background: transparent;
+  color: transparent;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  display: grid;
+  place-items: center;
+}
+
+.pet {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 140ms ease;
+  -webkit-user-drag: none;
+}
+
+.pet:active {
+  cursor: grabbing;
+}
+
+.pet.is-ready {
+  opacity: 1;
+}
+
+.loading {
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+  line-height: 1;
+}

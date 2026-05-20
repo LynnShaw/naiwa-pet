@@ -1,0 +1,11 @@
+{
+  "id": "naiwa",
+  "name": "Naiwa",
+  "width": 720,
+  "height": 960,
+  "fps": 30,
+  "frameCount": 438,
+  "idleFrame": "frames/frame_0000.webp",
+  "framePattern": "frames/frame_{index}.webp",
+  "audio": "audio.m4a"
+}
