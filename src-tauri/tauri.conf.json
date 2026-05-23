@@ -15,8 +15,8 @@
       {
         "title": "奶蛙",
         "label": "main",
-        "width": 240,
-        "height": 320,
+        "width": 180,
+        "height": 240,
         "resizable": false,
         "decorations": false,
         "transparent": true,

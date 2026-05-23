@@ -18,6 +18,7 @@ type PetManifest = {
 const DEFAULT_PET_ID = "naiwa";
 const APP_NAME = "奶蛙";
 const PET_SIZE_OPTIONS = [
+  { id: "max", label: "超大号", width: 360, height: 480 },
   { id: "large", label: "大号", width: 240, height: 320 },
   { id: "medium", label: "中号", width: 180, height: 240 },
   { id: "small", label: "小号", width: 120, height: 160 },
@@ -52,7 +53,7 @@ const getPetSize = (sizeId: PetSizeId) => PET_SIZE_OPTIONS.find((size) => size.i
 
 const getInitialPetSizeId = (): PetSizeId => {
   const size = new URLSearchParams(window.location.search).get("size");
-  return isPetSizeId(size) ? size : "large";
+  return isPetSizeId(size) ? size : "medium";
 };
 
 let currentPetSizeId: PetSizeId = getInitialPetSizeId();

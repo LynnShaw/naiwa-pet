@@ -1,6 +1,11 @@
 # Naiwa Pet
 
-一个轻量级 Tauri 桌面宠物应用，支持 Windows 和 macOS。
+奶蛙-一个轻量级 Tauri 桌面宠物应用，支持 Windows 和 macOS。
+
+## 桌面效果
+
+![Naiwa Pet 桌面演示](public/demo.webp)
+
 
 ## 常用命令
 
@@ -9,13 +14,6 @@ npm install
 npm run assets:naiwa
 npm run tauri:dev
 npm run tauri:build
-```
-
-如果安装依赖时需要使用本地代理：
-
-```sh
-export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
-npm install --registry=https://registry.npmjs.org --no-audit --no-fund
 ```
 
 ## 宠物素材
@@ -36,4 +34,4 @@ npm run assets:naiwa
 
 ## 构建
 
-本地 macOS 构建产物会输出到 `src-tauri/target/release/bundle`。Windows 和 macOS 的 CI 构建配置位于 `.github/workflows/build.yml`。
+本地 macOS 构建产物会输出到 `src-tauri/target/release/bundle`。
